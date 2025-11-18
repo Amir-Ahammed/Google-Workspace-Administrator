@@ -111,7 +111,6 @@ To set up DMARC, DKIM, and SPF for your domain, you need to add specific DNS TXT
      - Add a new TXT record for your domain.
      - Set the name to `@` or your domain name.
      - Paste the SPF value provided by your email service (e.g., Google Workspace, Microsoft 365).
-
 2. **DKIM (DomainKeys Identified Mail)**
    - **Purpose:** Adds a digital signature to your emails to verify they weren’t altered.
    - **Record Type:** TXT (sometimes CNAME depending on provider)
@@ -127,7 +126,6 @@ To set up DMARC, DKIM, and SPF for your domain, you need to add specific DNS TXT
      - In your DNS provider, add a TXT record:
        - Name: `selector._domainkey.yourdomain.com`
        - Value: The public key string
-
 3. **DMARC (Domain-based Message Authentication, Reporting & Conformance)**
    - **Purpose:** Tells receiving servers what to do if SPF or DKIM checks fail.
    - **Record Type:** TXT
