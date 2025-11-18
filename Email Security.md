@@ -96,8 +96,6 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
 ## What is DMARC?
 DMARC (Domain-based Message Authentication, Reporting & Conformance) is an email security protocol that protects your domain from spoofing and phishing by telling receiving servers how to handle emails that fail SPF or DKIM checks. It works by publishing a policy in DNS that enforces authentication and provides reporting.
 
-**Purpose:** It helps prevent email spoofing, phishing, and fraud 
-
 - **DMARC = Domain-based Message Authentication, Reporting & Conformance**
 - It builds on **SPF** and **DKIM** to give domain owners control over unauthenticated emails.
 - It helps prevent attackers from sending fake emails using your domain.
