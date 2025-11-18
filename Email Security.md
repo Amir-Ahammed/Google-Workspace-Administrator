@@ -48,6 +48,49 @@ DKIM (DomainKeys Identified Mail) is an email security protocol that uses crypto
    - If the signature matches → Email is trusted.
    - If it fails → Email may be flagged, quarantined, or rejected (especially if DMARC is also set).
 
+### DKIM Example
+
+```
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+ d=example.com;
+ s=selector1; t=1527769943;
+ bh=Vn1MqIIvwm8bUx8kZsHrc9bCpNEK+jIxSz7UkTaBcU0=;
+ h=From:To:Subject:Date:Message-ID;
+ b=Rjr1D+kr2HgpA8n0sHxywIDzi5no7vV2Ug3qog7ebJs0/KGz10WTfbwXqch+xHnZ
+
+```
+**Field-by-field Explanation**
+- `v=1` → DKIM version.
+- `a=rsa-sha256`
+  - **rsa** → public/private key signing
+  - **sha256** → hashing algorithm
+- `c=relaxed/simple`
+  - **relaxed** → headers ignore minor formatting differences (extra spaces, line breaks)
+  - **simple** → body is strict and sensitive to formatting changes
+- `d=example.com`
+  - The **domain** that signed the email.
+  - The receiver will look up this domain's DNS to retrieve the **public key**.
+- `s=selector1`
+  - The **selector** used to locate the DKIM public key in DNS.
+    - The DNS record will be queried at:
+      ```
+      selector1._domainkey.example.com
+      ```
+- `t=1527769943`
+  - Timestamp (Unix epoch time) when the email was signed.
+  - Helps detect old or replayed signatures.
+- `bh=Vn1MqIIvwm8bUx8kZsHrc9bCpNEK+jIxSz7UkTaBcU0=`
+  - **Body** hash of the email.
+  - Ensures the email body was not modified after signing.
+  - A SHA-256 hash of the canonicalized body.
+- `h=From:To:Subject:Date:Message-ID`
+  - List of headers included in the **DKIM signature**.
+  - If **any** of these headers are altered, DKIM verification will fail.
+- `b=Rjr1D+kr2HgpA8n0sHxywIDzi5no7vV2Ug3qog7ebJs0/KGz10WTfbwXqch+xHnZ`
+  - The actual **cryptographic signature**.
+  - Generated using the sender’s **private key**.
+  - The receiving server uses the **public key from DNS** to verify this value.
+
 ---
 
 ## What is DMARC?
