@@ -6,7 +6,7 @@ SPF, DKIM, and DMARC help authenticate email senders by verifying that the email
 
 ## What is SPF?
 SPF (Sender Policy Framework) is an email authentication protocol that helps prevent email spoofing by verifying whether a message was sent from an authorized mail server for a given domain. It works by checking DNS records to confirm if the sending server is permitted to send emails on behalf of that domain
-  - **Purpose:** Protects against spoofing, phishing, and spam by ensuring emails claiming to be from a domain are actually sent by approved servers
+- **Purpose:** Protects against spoofing, phishing, and spam by ensuring emails claiming to be from a domain are actually sent by approved servers
 - **Mechanism:** SPF uses DNS TXT records where domain owners publish a list of authorized mail servers.
 
 ### How does SPF work?
@@ -23,12 +23,66 @@ SPF (Sender Policy Framework) is an email authentication protocol that helps pre
     - If the IP matches → Pass (email is considered legitimate).
     - If not → Fail (email may be marked as spam, rejected, or flagged depending on policies).
 
+---
+
 ## What is DKIM?
+DKIM (DomainKeys Identified Mail) is an email security protocol that uses cryptographic signatures to prove that an email was sent by an authorized sender and hasn’t been tampered with. It works by attaching a digital signature to each outgoing email, which receiving servers can verify using public keys stored in DNS.
+- **DKIM = DomainKeys Identified Mail**
+- It’s like a **digital seal** of **authenticity** for your emails.
+- It helps prevent **email spoofing**, **phishing**, and **tampering**.
+
 ### How does DKIM work?
+1. Key Generation
+   - Your email system generates a private/public key pair.
+   - The private key is used to sign outgoing emails.
+   - The public key is published in your domain’s DNS as a TXT record.
+3. Email Signing
+   - When you send an email, your server uses the private key to create a DKIM signature.
+   - This signature is added to the email header (invisible to users).
+4. Email Receiving
+   - The receiving server sees the DKIM signature and checks your DNS for the public key.
+   - It uses the public key to verify that:
+     - The email was really sent by your domain.
+     - The message wasn’t altered during transit.
+5. Result
+   - If the signature matches → Email is trusted.
+   - If it fails → Email may be flagged, quarantined, or rejected (especially if DMARC is also set).
+
+---
 
 ## What is DMARC?
-### How does DMARC work?
+DMARC (Domain-based Message Authentication, Reporting & Conformance) is an email security protocol that protects your domain from spoofing and phishing by telling receiving servers how to handle emails that fail SPF or DKIM checks. It works by publishing a policy in DNS that enforces authentication and provides reporting.
+- **DMARC = Domain-based Message Authentication, Reporting & Conformance**
+- It builds on **SPF** and **DKIM** to give domain owners control over unauthenticated emails.
+- It helps prevent attackers from sending fake emails using your domain.
 
+### How does DMARC work?
+1. You Publish a DMARC Policy
+   - You add a TXT record in your domain’s DNS.
+   - This record tells email servers:
+     - What to do if SPF or DKIM fails.
+     - Where to send reports about email activity.
+3. Email Gets Sent
+   - The receiving server checks:
+     - Does the email pass SPF?
+     - Does it pass DKIM?
+     - Does the “From” address align with those checks?
+5. DMARC Applies Your Policy
+   - If checks fail, the server follows your DMARC instructions:
+     - `p=none` → Just monitor (no action).
+     - `p=quarantine` → Send to spam/junk.
+     - `p=reject` → Block the email.
+7. You Receive Reports
+   - DMARC sends aggregate reports to the email address you specify (via `rua=`).
+   - These reports show who’s sending emails using your domain and whether they passed authentication.
+
+#### Example DMARC Record
+```
+Name: _dmarc.example.com  
+Value: v=DMARC1; p=reject; rua=mailto:dmarc-reports@example.com
+
+```
+---
 
 ## Where are SPF, DKIM, and DMARC records stored?
 SPF, DKIM, and DMARC records are stored in the **Domain Name System (DNS)**, which is publicly available. The DNS's main use is matching web addresses to IP addresses, so that computers can find the correct servers for loading content over the Internet without human users having to memorize long alphanumeric addresses.
@@ -39,6 +93,8 @@ SPF, DKIM, and DMARC records are stored in the **Domain Name System (DNS)**, whi
 -  And reverse DNS records for domain lookups (PTR records).
 
 DKIM, SPF, and DMARC records are all stored as **DNS TXT records**. A DNS TXT record stores text that a domain owner wants to associate with the domain. This record can be used in a variety of ways, since it can contain any arbitrary text. DKIM, SPF, and DMARC are three of several applications for DNS TXT records.
+
+---
 
 ## How to set up DMARC, DKIM, and SPF for a domain
 To set up DMARC, DKIM, and SPF for your domain, you need to add specific DNS TXT records that define how email servers should authenticate messages sent from your domain. These records are configured through your domain's DNS provider (like Cloudflare, GoDaddy, etc.).
@@ -59,6 +115,11 @@ To set up DMARC, DKIM, and SPF for your domain, you need to add specific DNS TXT
 2. **DKIM (DomainKeys Identified Mail)**
    - **Purpose:** Adds a digital signature to your emails to verify they weren’t altered.
    - **Record Type:** TXT (sometimes CNAME depending on provider)
+   - **Example Value:**
+     ```
+     Name: selector1._domainkey.example.com
+     Value: v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBA...
+     ```
    - **Steps:**
      - Go to your email provider’s admin console.
      - Generate DKIM keys (public/private).
@@ -90,6 +151,8 @@ To set up DMARC, DKIM, and SPF for your domain, you need to add specific DNS TXT
 - Check records with tools like MXToolbox or DMARC Analyzer.
 
 > **Note:** They work together to protect your domain from spoofing, phishing, and spam.
+
+---
 
 ## How to check if an email has passed SPF, DKIM, and DMARC
 DMARC, DKIM, and SPF have to be set up in the domain's DNS settings. Administrators can contact their DNS provider — or, their web hosting platform may provide a tool that enables them to upload and edit DNS records. For more details on how these records work, see our articles about them:
